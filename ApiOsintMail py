@@ -1,0 +1,136 @@
+import requests
+from googlesearch import search
+from colorama import Fore, Style
+import re
+import time
+from pyhunter import PyHunter
+
+print(f"{Fore.LIGHTRED_EX}credit by Eliot from https://t.me/+Vh1gqRorPJwwNThk{Style.RESET_ALL}")
+
+def get_hunter_api_key():
+    return input(f"{Fore.CYAN}Enter your Hunter.io API key (obtain it at https://hunter.io/): {Style.RESET_ALL}")
+
+def init_hunter(api_key):
+    return PyHunter(api_key)
+
+def is_valid_email(email):
+    regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    return re.match(regex, email) is not None
+
+def get_domain(email):
+    return email.split('@')[-1]
+
+def whois_lookup(domain):
+    try:
+        response = requests.get(f"https://api.hackertarget.com/whois/?q={domain}")
+        if response.ok:
+            return response.text
+        else:
+            return f"Error: Received response code {response.status_code}"
+    except requests.RequestException as e:
+        return f"{Fore.RED}Error during WHOIS lookup: {e}{Style.RESET_ALL}"
+
+def google_search(email):
+    try:
+        print(f"{Fore.CYAN}Searching for information related to {email}...{Style.RESET_ALL}")
+        results = search(email + " information", num_results=5)
+        time.sleep(2)
+        return list(results)
+    except Exception as e:
+        return f"{Fore.RED}Error during Google search: {e}{Style.RESET_ALL}"
+
+def check_email_registration(email):
+    services = {
+        "Gmail": f"https://accounts.google.com/signup/v2/webcreateaccount?username={email.split('@')[0]}",
+        "Outlook": f"https://signup.live.com/signup?username={email.split('@')[0]}",
+        "Yahoo": f"https://login.yahoo.com/account/create?username={email.split('@')[0]}",
+        "ProtonMail": f"https://protonmail.com/create/new?username={email.split('@')[0]}",
+    }
+    
+    results = {}
+    for service, url in services.items():
+        try:
+            response = requests.get(url)
+            if response.ok:
+                results[service] = "Exists"
+            elif response.status_code == 404:
+                results[service] = "Does not exist"
+            else:
+                results[service] = "Unexpected response"
+        except requests.RequestException as e:
+            results[service] = f"Error: {e}"
+    
+    return results
+
+def check_data_breach(email):
+    try:
+        response = requests.get(f"https://haveibeenpwned.com/api/v2/breachedaccount/{email}")
+        if response.status_code == 200:
+            breaches = response.json()
+            return [breach['Name'] for breach in breaches]
+        elif response.status_code == 404:
+            return []
+        else:
+            return f"{Fore.RED}Error: Received response code {response.status_code}{Style.RESET_ALL}"
+    except requests.RequestException as e:
+        return f"{Fore.RED}Error during data breach check: {e}{Style.RESET_ALL}"
+
+def hunter_lookup(email, hunter):
+    try:
+        result = hunter.email_finder(email)
+        return result
+    except Exception as e:
+        return f"{Fore.RED}Error during Hunter.io lookup: {e}{Style.RESET_ALL}"
+
+def main():
+    HUNTER_API_KEY = get_hunter_api_key()
+    hunter = init_hunter(HUNTER_API_KEY)
+
+    email = input(f"{Fore.CYAN}Enter an email address to check: {Style.RESET_ALL}")
+
+    if not email or not is_valid_email(email):
+        print(f"{Fore.RED}Please enter a valid email address!{Style.RESET_ALL}")
+        return
+
+    domain = get_domain(email)
+
+    print(f"{Fore.GREEN}Checking information for email '{email}'...{Style.RESET_ALL}")
+    print(f"{'='*50}\n")
+
+    print(f"{Fore.YELLOW}Performing WHOIS lookup for domain '{domain}'...{Style.RESET_ALL}")
+    whois_info = whois_lookup(domain)
+    if whois_info:
+        print(f"{Fore.YELLOW}WHOIS Information:\n{whois_info}{Style.RESET_ALL}")
+
+    print(f"{Fore.YELLOW}Checking if the email is registered on popular services...{Style.RESET_ALL}")
+    registration_info = check_email_registration(email)
+    for service, status in registration_info.items():
+        print(f"{Fore.YELLOW}[*] {service}: {Fore.RED}{status}{Style.RESET_ALL}")
+
+    print(f"{Fore.YELLOW}Searching online for mentions of the email...{Style.RESET_ALL}")
+    google_results = google_search(email)
+    if isinstance(google_results, list) and google_results:
+        for result in google_results:
+            print(f"{Fore.BLUE}{result}{Style.RESET_ALL}")
+    else:
+        print(f"{Fore.RED}No results found for '{email}'.{Style.RESET_ALL}")
+
+    print(f"{Fore.YELLOW}Checking for data breaches...{Style.RESET_ALL}")
+    breaches = check_data_breach(email)
+    if isinstance(breaches, list) and breaches:
+        print(f"{Fore.RED}Email found in data breaches: {', '.join(breaches)}{Style.RESET_ALL}")
+    else:
+        print(f"{Fore.GREEN}No data breaches found for '{email}'.{Style.RESET_ALL}")
+
+    print(f"{Fore.YELLOW}Retrieving additional information from Hunter.io...{Style.RESET_ALL}")
+    hunter_info = hunter_lookup(email, hunter)
+    if isinstance(hunter_info, dict):
+        print(f"{Fore.YELLOW}Hunter.io Information: {hunter_info}{Style.RESET_ALL}")
+    else:
+        print(hunter_info)
+
+    print(f"\n{'-'*50}++")
+    print(f"{Fore.BLUE}Check completed.{Style.RESET_ALL}")
+
+if __name__ == "__main__":
+    main()
