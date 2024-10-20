@@ -13,7 +13,7 @@ def main():
         choice = input("Enter your choice (1/2/3): ")
 
         if choice == "1":
-            os.system("python ApiOsintMail.py")
+            os.system("python 'ApiOsintMail.py'")  # Esegui il file con le virgolette singole
         elif choice == "2":
             os.system("python OSINT-COLLECTOR.py")
         elif choice == "3":
