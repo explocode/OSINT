@@ -5,7 +5,7 @@ import re
 import time
 from pyhunter import PyHunter
 
-print(f"{Fore.LIGHTRED_EX}credit by Eliot from https://t.me/+Vh1gqRorPJwwNThk{Style.RESET_ALL}")
+print(f"{Fore.LIGHTRED_EX}credit by linux from https://tele.gd/C-WWGKRWAVX{Style.RESET_ALL}")
 
 def get_hunter_api_key():
     return input(f"{Fore.CYAN}Enter your Hunter.io API key (obtain it at https://hunter.io/): {Style.RESET_ALL}")
