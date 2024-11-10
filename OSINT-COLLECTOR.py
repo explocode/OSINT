@@ -146,7 +146,7 @@ def save_search_history(entry):
         f.write(entry + "\n")
 
 def main():
-    print(colored("credit by Eliot from https://t.me/+Vh1gqRorPJwwNThk", "light_red"))
+    print(colored("credit by linux from https://tele.gd/C-WWGKRWAVX", "light_red"))
 
     phone_api_key, ip_api_key, timeout = load_api_keys()
     if not phone_api_key or not ip_api_key:
