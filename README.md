@@ -45,10 +45,6 @@ ls (choose tool)
 
 This project is licensed under the MIT License.
 
-📫 Contact
-# t.me/+Vh1gqRorPJwwNThk
-For further information, feel free to contact me on Telegram: Telegram Contact.
-
 
 ---
 
