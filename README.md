@@ -1,5 +1,4 @@
 # OSINT-MAIL
-Here’s the translated README.md in English:
 
 # Email Research and Public Information Gathering Project
 
